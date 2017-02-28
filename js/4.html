@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>IFE JavaScript Task 04</title>
+    <style type="text/css">
+        #source {
+            list-style: none;
+        }
+        #source li {
+            background: red;
+            float: left;
+            width: 2%;
+            height: 2%;
+            margin: 0 1% 1% 0;
+            text-align: center;
+            line-height:25px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<input type="number" id="num-input" placeholder="请输入一个数字"> <button id="unshift-btn">左侧入</button><button id="push-btn">右侧入</button>&nbsp;<button id="shift-btn">左侧出</button><button id="pop-btn">右侧出</button>
+<ul id="source"></ul>
+<script type="text/javascript">
+
+    (function() {
+        const aryMethods = ['push', 'pop', 'shift', 'unshift'];
+        const arrayAugmentations = [];
+        function $(str) {
+            return document.querySelector(str);
+        }
+        const sourceUl =$('#source');
+        const numInput = $('#num-input');
+
+        aryMethods.forEach((method)=> {
+
+            // 这里是原生Array的原型方法
+            let original = Array.prototype[method];
+
+            // 将push, pop等封装好的方法定义在对象arrayAugmentations的属性上
+            // 注意：是属性而非原型属性
+            arrayAugmentations[method] = function () {
+                sourceUl.innerHTML = '';
+
+                // 调用对应的原生方法并返回结果
+                alert(original.apply(this, arguments));
+                //开始渲染
+                render(sourceUl, this)
+            };
+
+        });
+        
+        function render(dom, data) {
+            dom.innerHTML = data.map(v => `<li>${v}</li>`).join('');
+        }
+
+        let list = [];
+        list.__proto__ = arrayAugmentations;
+
+        aryMethods.forEach(method => {
+            $(`#${method}-btn`).addEventListener('click',() =>{
+                if (['unshift', 'push'].indexOf(method) > -1) {
+                    let value = numInput.value
+                    if(isNaN(parseInt(value))) {
+                        alert('请输入数字');
+                        return false;
+                    }
+                    return list[method](value);
+                }
+
+                return list[method]();
+            })
+        })
+
+    })();
+
+</script>
+</body>
+</html>
