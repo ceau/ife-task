@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>IFE JavaScript Task 05</title>
+    <style>
+        #field{width:500px;height:510px;background:white;position:relative}
+        .bar{position:absolute;bottom:0;background:orange;border:1px solid brown;width:48px}
+    </style>
+</head>
+<body>
+<input type="number" id="num-input" placeholder="请输入一个数字"> <button id="unshift-btn">左侧入</button><button id="push-btn">右侧入</button>&nbsp;<button id="shift-btn">左侧出</button><button id="pop-btn">右侧出</button>
+<br>
+<button id="sort-btn">快速排序</button>
+<div id="field">
+</div>
+
+<script>
+    (function(d){
+
+        const MIN = 10;
+        const MAX = 100;
+        const LIMIT = 60;
+
+        const aryMethods = ['push', 'pop', 'shift', 'unshift'];
+        const arrayAugmentations = [];
+        let myReq = 0;
+        function $(str) {
+            return document.querySelector(str);
+        }
+        const numInput = $('#num-input');
+
+        aryMethods.forEach((method)=> {
+
+            // 这里是原生Array的原型方法
+            let original = Array.prototype[method];
+
+            // 将push, pop等封装好的方法定义在对象arrayAugmentations的属性上
+            // 注意：是属性而非原型属性
+            arrayAugmentations[method] = function () {
+                original.apply(this, arguments);
+                render($('#field'), this);
+            };
+
+        });
+
+        //渲染
+        function render(dom, data) {
+            dom.innerHTML = data.map((v, k) => {
+                let height = 5 * v + 'px';
+                let left = 50 * k + 'px';
+                return `<div class="bar" style="height:${height};left:${left}">${v}</div>`;
+            }).join('');
+        }
+
+        let list = [];
+        list.__proto__ = arrayAugmentations;
+
+        aryMethods.forEach(method => {
+            $(`#${method}-btn`).addEventListener('click',() =>{
+                if (['unshift', 'push'].indexOf(method) > -1) {
+                    let value = numInput.value
+                    if(isNaN(parseInt(value))) {
+                        alert('请输入数字');
+                        return false;
+                    }
+                    value = Number(value);
+                    if (value < MIN || value > MAX ) {
+                        alert('数字溢出');
+                        return false;
+                    }
+
+                    if (list.length > LIMIT) {
+                        alert('数组尺寸溢出');
+                        return false;
+                    }
+                    numInput.value = '';
+                    return list[method](value);
+                }
+
+                return list[method]();
+            })
+        })
+
+
+        var bars = [].slice.call(d.querySelectorAll('.bar'));
+        var state = [];
+
+        var draw = function(){
+            var s;
+            if (bars.length < 1) {
+                bars = [].slice.call(d.querySelectorAll('.bar'));
+            }
+            s = state.shift() || [];
+            if (s.length) {
+                bars.map((v, k) => {
+                    let height = 5 * s[k] + 'px';
+                    let left = 50 * k + 'px';
+                    bars[k].style.cssText += `;height:${height};left:${left}`;
+                    bars[k].innerHTML = s[k];
+                })
+            }
+        }
+
+        /**
+         * 分区操作
+         * @param list
+         * @param start
+         * @param end
+         * @returns {*}
+         */
+        function partition(list, start, end) {
+            let tmp = list[start];
+            while (start < end){
+                while(list[end] >= tmp && start < end) end--;
+                if (start < end) list[start++] = list[end]
+                while(list[start] <= tmp && start < end) start++;
+                if(start < end) list[end--] = list[start]
+            }
+            list[start] = tmp;
+            state.push(JSON.parse(JSON.stringify(list)));
+            return start;
+        }
+
+        /**
+         * 快速排序
+         * @param list
+         * @returns {*}
+         */
+        function quickSort(list) {
+            if (list.length < 2) return list;
+            let left = 0;
+            let right = list.length - 1;
+            let stack = [];
+            stack.push(left);
+            stack.push(right);
+
+            while (stack.length > 0) {
+                let h = stack.pop();
+                let l = stack.pop();
+                let p = partition(list, l, h);
+
+                if (p - l > 1){
+                    stack.push(l);
+                    stack.push(p-1);
+                }
+
+                if (h - p > 1) {
+                    stack.push(p+1);
+                    stack.push(h);
+                }
+            }
+        }
+
+        $('sort-btn').addEventListener('click', function () {
+            if(myReq){
+                clearInterval(myReq);
+            }
+            quickSort(list);
+            myReq = setInterval(draw, 500);
+        }, false);
+    })(document)
+</script>
+</body>
+
+</html>
