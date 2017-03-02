@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>IFE JavaScript Task 06</title>
+    <style type="text/css">
+        #source {
+            list-style: none;
+        }
+        #source li {
+            background: red;
+            float: left;
+            width: 2%;
+            height: 2%;
+            margin: 0 1% 1% 0;
+            text-align: center;
+            line-height:25px;
+            color: white;
+        }
+        .clearfix {
+            clear: both;
+        }
+    </style>
+</head>
+<body>
+<textarea name="" id="text-input" cols="50" rows="5" placeholder="请输入内容"></textarea> <button id="unshift-btn">左侧入</button><button id="push-btn">右侧入</button>&nbsp;<button id="shift-btn">左侧出</button><button id="pop-btn">右侧出</button>
+<hr><input type="text" id="search-input" placeholder="请输入关键词"> <button id="search-btn">查询</button>
+
+<ul id="source"></ul>
+<div class="clearfix"></div>
+<ul id="filter"></ul>
+<script type="text/javascript">
+
+    (function() {
+        const aryMethods = ['push', 'pop', 'shift', 'unshift'];
+        const arrayAugmentations = [];
+        function $(str) {
+            return document.querySelector(str);
+        }
+        const sourceUl =$('#source');
+        const textInput = $('#text-input');
+        const searchInput = $('#search-input');
+        const searchBtn = $('#search-btn');
+        const filterUl = $('#filter');
+
+        aryMethods.forEach((method)=> {
+
+            // 这里是原生Array的原型方法
+            let original = Array.prototype[method];
+
+            // 将push, pop等封装好的方法定义在对象arrayAugmentations的属性上
+            // 注意：是属性而非原型属性
+            arrayAugmentations[method] = function () {
+                sourceUl.innerHTML = '';
+
+                // 调用对应的原生方法并返回结果
+                alert(original.apply(this, arguments));
+                //开始渲染
+                render(sourceUl, this)
+            };
+
+        });
+
+        function render(dom, data) {
+            dom.innerHTML = data.map(v => `<li>${v}</li>`).join('');
+        }
+
+        function filterRender(dom, data, search) {
+            dom.innerHTML = data.map(v => {
+                v = v.replace(search, `<span style="color:orange">${search}</span>`)
+                return `<li>${v}</li>`;
+            }).join('');
+        }
+
+        let list = [];
+        list.__proto__ = arrayAugmentations;
+
+        aryMethods.forEach(method => {
+            $(`#${method}-btn`).addEventListener('click',() =>{
+                if (['unshift', 'push'].indexOf(method) > -1) {
+                    let value = textInput.value.trim();
+                    if(!value) {
+                        alert('请输入内容');
+                        return false;
+                    }
+                    textInput.value = '';
+                    return list[method](value);
+                }
+
+                return list[method]();
+            })
+        })
+
+        searchBtn.addEventListener('click', () => {
+            let searchStr = searchInput.value.trim();
+            if(searchStr.length < 1) {
+                alert('请输入关键词');
+                return false;
+            }
+            if (list.length < 1) {
+                alert('暂无可搜索的条目，请添加');
+                return false;
+            }
+            let searchList = list.filter(v => v.indexOf(searchStr) > -1);
+            if(searchList.length < 1) {
+                alert('换个关键词试试');
+                return false;
+            }
+            filterRender(filterUl, searchList, searchStr);
+        }, false);
+
+
+
+    })();
+
+</script>
+</body>
+</html>
