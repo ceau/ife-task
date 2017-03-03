@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IFE JavaScript Task 08</title>
+    <style type="text/css">
+        .mark {
+            color: red;
+        }
+        .button {
+            width: 300px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <ul>
+        <li id="root">
+        </li>
+    </ul>
+    <div class="button">
+        <button id="iterate">遍历</button>
+        <input type="text" placeholder="请输入关键字" id="search_txt"/>
+        <button id="find">查找</button>
+    </div>
+    <script>
+        let state = []; //状态数组
+        const markClass = 'mark';
+        let timer = 0; //动画计时器
+        //广度优先遍历
+        let nonRecursiveWidthFirstTraversal = function (node, action) {
+            if (!node || !node.children) { return; }
+            let _queue = []; // 借助一个队列
+            _queue.push(node);
+            while (_queue.length) {
+                let _curNode = _queue.shift(); // 推出队头元素
+                action(_curNode.value);
+                if (_curNode.children.length) {
+                    _queue = _queue.concat(_curNode.children);
+                }
+            }
+        }
+
+        function pushState(value) {
+            state.push(value);
+        }
+        //查找
+        function search(node, value) {
+            if (!node || !node.children){ return; }
+            let _queue = []; // 借助一个队列
+            _queue.push(node);
+            while (_queue.length) {
+                let _curNode = _queue.shift(); // 推出队头元素
+                state.push(_curNode.value);
+                if (value == _curNode.value)
+                    break;
+                if (_curNode.children.length) {
+                    _queue = _queue.concat(_curNode.children);
+                }
+            }
+        }
+        //树的json
+        let tree = {
+            value: 0,
+            children: [{
+                value: 11,
+                children: [{
+                    value: 21,
+                    children: [{
+                        value: 31,
+                        children: []
+                    }, {
+                        value: 32,
+                        children: []
+                    }, {
+                        value: 33,
+                        children: []
+                    }]
+                }, {
+                    value: 22,
+                    children: []
+                }]
+            }, {
+                value: 12,
+                children: [{
+                    value: 23,
+                    children: []
+                }, {
+                    value: 24,
+                    children: []
+                }]
+            }, {
+                value: 13,
+                children: []
+            }]
+        };
+        //渲染树
+        function renderMenu(menu, parent) {
+            let span = document.createElement('span');
+            span.id = 'node-' + menu.value;
+            let textNode = document.createTextNode(menu.value);
+            span.appendChild(textNode);
+            parent.appendChild(span);
+            if (menu.children.length < 1) {
+                return parent;
+            }
+
+            let ul = document.createElement('ul');
+            for (let i = 0; i < menu.children.length; ++i) {
+                let li = document.createElement('li');
+                renderMenu(menu.children[i], li);
+                ul.appendChild(li);
+            }
+
+            parent.appendChild(ul);
+            return parent;
+        }
+
+        //遍历动画函数，呈现视觉效果用
+        let render = function(){
+            timer = setInterval(function(){
+                if (state.length > 0){
+                    let currentNode = document.querySelector('#node-' + state.shift());
+                    if (currentNode) {
+                        clear();
+                        currentNode.classList.add(markClass);
+                    }
+                }else {
+                    alert('遍历结束');
+                    window.clearInterval(timer);
+                }
+
+            },500);
+        }
+        function clear() {
+            let spanArr = [].slice.call(document.querySelectorAll('span'));
+            for(let span of spanArr) {
+                if (span.classList.contains(markClass)) {
+                    span.classList.remove(markClass);
+                }
+            }
+        }
+        renderMenu(tree, document.querySelector('#root')); //渲染树
+        document.querySelector('#iterate').addEventListener('click', function () {
+            state = [];
+            nonRecursiveWidthFirstTraversal(tree, pushState);
+            render();
+        }, false);
+        document.querySelector('#find').addEventListener('click', function () {
+            if (timer) window.clearInterval(timer);
+            state = [];
+            let str = document.querySelector('#search_txt').value.trim()
+            if(str.length < 0) {
+                alert('请输入关键字');
+                return false;
+            }
+            search(tree, str);
+            render();
+        }, false)
+    </script>
+</body>
+</html>
