@@ -53,11 +53,12 @@
                 let _curNode = _queue.shift(); // 推出队头元素
                 state.push(_curNode.value);
                 if (value == _curNode.value)
-                    break;
+                    return true
                 if (_curNode.children.length) {
                     _queue = _queue.concat(_curNode.children);
                 }
             }
+            return false;
         }
         //树的json
         let tree = {
@@ -154,8 +155,10 @@
                 alert('请输入关键字');
                 return false;
             }
-            search(tree, str);
-            render();
+            if (search(tree, str))
+                render();
+            else
+                alert("找不到该元素")
         }, false)
     </script>
 </body>
