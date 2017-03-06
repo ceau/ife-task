@@ -9,9 +9,9 @@
             background: linear-gradient(top, transparent 79px, #e3e3e3 80px), linear-gradient(left, transparent 79px, #e3e3e3 80px);
             background-size: 80px 80px;
             position: relative;
+            top: -20px;
             width: 800px;
             height: 800px;
-            margin: 40px;
             border: 1px solid #0e0e0e;
         }
 
@@ -34,17 +34,66 @@
             height: 60px;
             background: red;
         }
+        ul{
+            list-style: none;
+            height: 20px;
+        }
+        .up li{
+            float:left;
+            width: 80px;
+        }
+        .container{
+            margin: 40px auto;
+            width:1000px;
+        }
+        .left {
+            width: 80px;
+            margin-left: -80px;
+            margin-bottom: 0;
+            margin-top: 0;
+        }
+        .left li{
+            height: 80px;
+            line-height:80px;
+        }
     </style>
 </head>
 <body>
-<div class="grid">
-    <div class="box">
-        <div class="blue"></div>
-        <div class="red"></div>
+<div class="container">
+    <ul class="up">
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+        <li>6</li>
+        <li>7</li>
+        <li>8</li>
+        <li>9</li>
+        <li>10</li>
+    </ul>
+    <ul class="left">
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+        <li>6</li>
+        <li>7</li>
+        <li>8</li>
+        <li>9</li>
+        <li>10</li>
+    </ul>
+    <div class="grid">
+        <div class="box">
+            <div class="blue"></div>
+            <div class="red"></div>
+        </div>
     </div>
+    <input type="text" id="cmd_txt" placeholder="请输入指令">
+    <button id="run_btn">执行</button>
 </div>
-<input type="text" id="cmd_txt" placeholder="请输入指令">
-<button id="run_btn">执行</button>
+
 <script>
     const $ = str => document.querySelector(str);
     const box = $('.box');
