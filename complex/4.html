@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>听指令的小方块（一）</title>
+    <style type="text/css">
+        .grid {
+            background: -webkit-linear-gradient(top, transparent 79px, #e3e3e3 80px), -webkit-linear-gradient(left, transparent 79px, #e3e3e3 80px);
+            background: linear-gradient(top, transparent 79px, #e3e3e3 80px), linear-gradient(left, transparent 79px, #e3e3e3 80px);
+            background-size: 80px 80px;
+            position: relative;
+            width: 800px;
+            height: 800px;
+            margin: 40px;
+            border: 1px solid #0e0e0e;
+        }
+
+        .box {
+            width: 80px;
+            height: 80px;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+        }
+
+        .blue {
+            width: 80px;
+            height: 20px;
+            background: blue;
+        }
+
+        .red {
+            width: 80px;
+            height: 60px;
+            background: red;
+        }
+    </style>
+</head>
+<body>
+<div class="grid">
+    <div class="box">
+        <div class="blue"></div>
+        <div class="red"></div>
+    </div>
+</div>
+<input type="text" id="cmd_txt" placeholder="请输入指令">
+<button id="run_btn">执行</button>
+<script>
+    const $ = str => document.querySelector(str);
+    const box = $('.box');
+    const runBtn = $('#run_btn');
+    const cmdTxt = $('#cmd_txt');
+    const WIDTH = 800;
+    const HEIGHT = 800;
+    const CELLWIDTH = 80;
+    let dir = 'up';
+    
+    function go(step = 1, dir='up') {
+        //当前hei
+        let left = parseInt(getComputedStyle(box,null).getPropertyValue("left"));
+        let bottom = parseInt(getComputedStyle(box,null).getPropertyValue("bottom"));
+
+        switch (dir) {
+            case 'down':
+                bottom = (bottom - CELLWIDTH < 0) ? 0 : bottom - CELLWIDTH;
+                break;
+            case 'left':
+                left = (left - CELLWIDTH < 0) ? 0 : left - CELLWIDTH;
+                break;
+            case 'right':
+                left = (left + CELLWIDTH <= WIDTH) ? left + CELLWIDTH : WIDTH;
+                break;
+            default:
+                bottom = (bottom + CELLWIDTH <= WIDTH) ? bottom + CELLWIDTH : WIDTH;
+                break;
+        }
+        //开始运动
+        setTimeout(function () {
+            box.style.cssText += `left: ${left}px; bottom: ${bottom}px`;
+        }, 400)
+    }
+
+    function turnLeft(dom) {
+        dom.style.transform = 'rotate(-90deg)';
+        dir = 'left';
+    }
+
+    function turnRight(dom) {
+        dom.style.transform = 'rotate(90deg)';
+        dir = 'right';
+    }
+
+    function turnDown(dom) {
+        dom.style.transform = 'rotate(180deg)';
+        dir = 'down';
+    }
+
+    runBtn.addEventListener('click', () => {
+        let cmd = cmdTxt.value.trim();
+        if (!cmd) {
+            alert('请输入指令');
+            return false;
+        }
+        cmd = cmd.toUpperCase();
+        if(['GO', 'TUN LEF', 'TUN RIG', 'TUN BAC'].indexOf(cmd) < 0) {
+            alert('请输入正确的指令');
+            return false;
+        }
+        switch (cmd) {
+            case 'GO':
+                go(1, dir);
+                break;
+            case 'TUN LEF':
+                turnLeft(box);
+                break;
+            case 'TUN RIG':
+                turnRight(box);
+                break;
+            case 'TUN BAC':
+                turnDown(box);
+                break;
+            default: break;
+        }
+    }, false)
+
+
+</script>
+</body>
+</html>
