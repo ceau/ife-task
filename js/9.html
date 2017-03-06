@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IFE JavaScript Task 09</title>
+    <style type="text/css">
+        .mark {
+            color: red;
+        }
+        .button {
+            width: 300px;
+            margin: auto;
+        }
+        span.sel {
+            background-color: #FFE6B0;
+        }
+    </style>
+</head>
+<body>
+<ul>
+    <li id="root">
+    </li>
+</ul>
+<div class="button">
+    <button id="del_btn">删除</button> <input type="text" placeholder="请输入添加的节点内容" id="node_txt"> <button id="add_btn">添加</button>
+</div>
+<script>
+    const $ = str => document.querySelector(str);
+    let state = []; //状态数组
+    let currentNode = null; //当前选中的节点
+    //广度优先遍历
+    let nonRecursiveWidthFirstTraversal = function (node, action) {
+        if (!node || !node.children) { return; }
+        let _queue = []; // 借助一个队列
+        _queue.push(node);
+        while (_queue.length) {
+            let _curNode = _queue.shift(); // 推出队头元素
+            action(_curNode.value);
+            if (_curNode.children.length) {
+                _queue = _queue.concat(_curNode.children);
+            }
+        }
+    }
+    //查找
+    function search(node, value) {
+        if (!node || !node.children){ return; }
+        let _queue = []; // 借助一个队列
+        _queue.push(node);
+        while (_queue.length) {
+            let _curNode = _queue.shift(); // 推出队头元素
+            state.push(_curNode.value);
+            if (value == _curNode.value)
+                return true
+            if (_curNode.children.length) {
+                _queue = _queue.concat(_curNode.children);
+            }
+        }
+        return false;
+    }
+    //树的json
+    let tree = {
+        value: 0,
+        children: [{
+            value: 11,
+            children: [{
+                value: 21,
+                children: [{
+                    value: 31,
+                    children: []
+                }, {
+                    value: 32,
+                    children: []
+                }, {
+                    value: 33,
+                    children: []
+                }]
+            }, {
+                value: 22,
+                children: []
+            }]
+        }, {
+            value: 12,
+            children: [{
+                value: 23,
+                children: []
+            }, {
+                value: 24,
+                children: []
+            }]
+        }, {
+            value: 13,
+            children: []
+        }]
+    };
+    //渲染树
+    function renderMenu(menu, parent) {
+        let span = document.createElement('span');
+        span.id = 'node-' + menu.value;
+        let textNode = document.createTextNode(menu.value);
+        span.appendChild(textNode);
+        parent.appendChild(span);
+        if (menu.children.length < 1) {
+            return parent;
+        }
+
+        let ul = document.createElement('ul');
+        for (let i = 0; i < menu.children.length; ++i) {
+            let li = document.createElement('li');
+            renderMenu(menu.children[i], li);
+            ul.appendChild(li);
+        }
+
+        parent.appendChild(ul);
+        return parent;
+    }
+
+    renderMenu(tree, document.querySelector('#root')); //渲染树
+    /**
+     * 任务九
+     */
+    $("#root").addEventListener("click",function(e) {
+        if(e.target && e.target.nodeName.toUpperCase() == "SPAN") {
+            console.log(e.target);
+            [].slice.call(document.querySelectorAll('span')).map(v => {
+                if (v.classList.contains('sel'))
+                    v.classList.remove('sel');
+            });
+            e.target.classList.add('sel');
+            currentNode = e.target.parentElement;
+        }
+    }, false);
+
+    // 删除节点
+    $('#del_btn').addEventListener('click', function () {
+        if(currentNode) {
+            if (confirm('删除此节点吗？')) {
+                let parentNode = currentNode.parentElement;
+                parentNode.removeChild(currentNode);
+            }
+        }else {
+            alert('请先选择节点');
+            return false;
+        }
+    }, false);
+    // 添加
+    $('#add_btn').addEventListener('click', function () {
+        if(currentNode) {
+               let ul = currentNode.querySelector('ul');
+               let nodeValue = $('#node_txt').value.trim();
+               if (!nodeValue){
+                   alert('请输入节点内容');
+                   return false;
+               }
+                let span = document.createElement('span');
+                let textNode = document.createTextNode(nodeValue);
+                span.appendChild(textNode);
+                let li = document.createElement('li');
+                li.appendChild(span);
+               if (ul) {
+                   ul.appendChild(li);
+               }else {
+                  ul = document.createElement('ul');
+                  ul.appendChild(li);
+                  currentNode.appendChild(ul);
+               }
+        }else {
+            alert('请先选择节点');
+            return false;
+        }
+    }, false);
+</script>
+</body>
+</html>
